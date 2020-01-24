@@ -1,8 +1,8 @@
-CXX_FLAGS=-g -O0 -Werror -Wall -Wpedantic -Wextra -std=c++17
+CXX_FLAGS=-g -O0 -Werror -Wall -Wpedantic -Wextra 
 BUILD_DIR=${APP_NAME}_build
 SRC_DIR=src
 APP_NAME=interpreter
-
+STD=--std=c++17
 SRC=$(wildcard ${SRC_DIR}/*.cpp)
 OBJECTS=$(SRC:${SRC_DIR}/%.cpp=${BUILD_DIR}/%.o)
 
@@ -23,7 +23,6 @@ TEST_BUILD_DIR=${TEST_APP}_build
 .PHONY: format
 .PHONY: check
 .PHONY: test
-.PHONY: ${APP_NAME}
 
 all: ${APP_NAME} ${TEST_APP}
 
@@ -46,10 +45,10 @@ setup:
 	@echo "Setup has been run, so you may have to run you command again if it fails"
 
 format:
-	clang-format -i ${SRC}
+	clang-format -i ${SRC} ${TEST_SRC}
 
 check:
-	cppcheck -enable=all ${SRC}
+	cppcheck --enable=all ${STD} ${INCLUDE_PATHS} ${SRC}
 
 ${TEST_APP}: ${TEST_OBJS}
 	clang++ -o $@ $^ ${LIBS} ${LIB_PATH} 
@@ -61,13 +60,13 @@ ${APP_NAME}: ${OBJECTS}
 	clang++ -o $@ $^ ${LIBS} ${LIB_PATH} 
 
 ${BUILD_DIR}/%.o: ${SRC_DIR}/%.cpp
-	clang++ -c -o $@ $< ${CXX_FLAGS} ${INCLUDE_PATHS} ${CONAN_CXXFLAGS} ${DEFINES}
+	clang++ -c -o $@ $< ${CXX_FLAGS} ${INCLUDE_PATHS} ${CONAN_CXXFLAGS} ${DEFINES} ${STD}
 
 ${TEST_BUILD_DIR}/%.o: ${TEST_DIR}/%.cpp
-	clang++ -c -o $@ $< ${CXX_FLAGS} ${INCLUDE_PATHS} ${CONAN_CXXFLAGS} ${DEFINES}
+	clang++ -c -o $@ $< ${CXX_FLAGS} ${INCLUDE_PATHS} ${CONAN_CXXFLAGS} ${DEFINES} ${STD}
 
 clean:
-	-rm -r ${BUILD_DIR}
-	-rm -r ${TEST_BUILD_DIR}
+	-rm ${BUILD_DIR}/*.o
+	-rm ${TEST_BUILD_DIR}/*.o
 	-rm ${APP_NAME}
 	-rm ${TEST_APP}
