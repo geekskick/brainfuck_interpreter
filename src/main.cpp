@@ -17,12 +17,27 @@ bool help_arg(const int argc, const char *argv[]) {
 }
 } // namespace
 
+struct symbols {
+    constexpr static auto increment = '+';
+    constexpr static auto decrement = '-';
+    constexpr static auto next = '>';
+    constexpr static auto prev = '<';
+    constexpr static auto output = '.';
+    constexpr static auto input = ',';
+    constexpr static auto start_loop = '[';
+    constexpr static auto end_loop = ']';
+};
+
+struct commands {
+    constexpr static auto quit = 'q';
+};
+
 int main(const int argc, const char *argv[]) {
     if (help_arg(argc, argv)) {
         print_usage();
     }
 
-    fmt::print("Continuing as normal, [Ctrl-CqQ] to quit.\n");
+    fmt::print("Continuing as normal, [Ctrl-C or {}] to quit.\n", commands::quit);
 
     auto m = machine<int>{};
     auto start_of_loop = std::string::const_iterator{};
@@ -33,27 +48,27 @@ int main(const int argc, const char *argv[]) {
         std::getline(std::cin, input);
         for (auto c = std::cbegin(input); c != std::cend(input);) {
             switch (*c) {
-            case '+':
+            case symbols::increment:
                 m.increment_data();
                 c++;
                 break;
-            case '-':
+            case symbols::decrement:
                 m.decrement_data();
                 c++;
                 break;
-            case '>':
+            case symbols::next:
                 m.next_data();
                 c++;
                 break;
-            case '<':
+            case symbols::prev:
                 m.previous_data();
                 c++;
                 break;
-            case '.':
+            case symbols::output:
                 fmt::print("{}\n", m.output_current());
                 c++;
                 break;
-            case '[':
+            case symbols::start_loop:
                 if (const auto end = std::find(c, std::cend(input), ']'); end != std::cend(input)) {
                     if (m.current_is_zero()) {
                         c = end + 1;
@@ -67,18 +82,17 @@ int main(const int argc, const char *argv[]) {
                     break;
                 }
                 break;
-            case ']':
+            case symbols::end_loop:
                 c = start_of_loop;
                 break;
-            case ',': {
+            case symbols::input: {
                 fmt::print("Data to input:\n>\t");
                 auto input = 0;
                 std::cin >> input;
                 m.input_current(input);
                 c++;
             } break;
-            case 'q':
-            case 'Q':
+            case commands::quit:
                 fmt::print("Exitting\n");
                 return EXIT_SUCCESS;
                 break;
