@@ -17,6 +17,8 @@ public:
 
     void previous_data() { current--; }
 
+    bool current_is_zero() const { return memory.at(current) == 0; }
+
     DType output_current() const { return memory.at(current); }
 
     void input_current(DType d) { memory.at(current) = d; }

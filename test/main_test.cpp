@@ -54,3 +54,7 @@ TEST_CASE("Changes Ptr Without changing data") {
     const auto uut_cell_1_again = m.output_current();
     REQUIRE(uut_cell_1_again == uut_cell_1);
 }
+TEST_CASE("Zero"){
+    auto m = machine<int>{};
+    REQUIRE(m.current_is_zero());
+}
