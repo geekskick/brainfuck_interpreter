@@ -1,4 +1,4 @@
-CXX_FLAGS=-O3 -Werror -Wall -Wpedantic -Wextra 
+CXX_FLAGS=-O0 -Werror -Wall -Wpedantic -Wextra -g
 BUILD_DIR=${APP_NAME}_build
 SRC_DIR=src
 APP_NAME=interpreter
@@ -27,17 +27,17 @@ TEST_BUILD_DIR=${TEST_APP}_build
 all: ${APP_NAME} ${TEST_APP}
 
 info: setup
-	@echo "APP SRC = ${SRC}"
-	@echo "TEST SRC= ${TEST_SRC}"
-	@echo "OBJECTS = ${OBJECTS}"
-	@echo "IPath   = ${INCLUDE_PATHS}"
-	@echo "FLAGS   = ${CXX_FLAGS}"
-	@echo "LIBS    = ${LIBS}"
-	@echo "DEFINES = ${DEFINES}"
-	@echo "LPath   = ${LIB_PATH}"
-	@echo "APP NAME=${APP_NAME}"
-	@echo "TST NAME=${TEST_APP}"
-	@echo "TST OBJS=${TEST_OBJS}"
+	@echo "APP SRC \t= ${SRC}"
+	@echo "TEST SRC\t= ${TEST_SRC}"
+	@echo "OBJECTS \t= ${OBJECTS}"
+	@echo "IPath   \t= ${INCLUDE_PATHS}"
+	@echo "FLAGS   \t= ${CXX_FLAGS}"
+	@echo "LIBS    \t= ${LIBS}"
+	@echo "DEFINES \t= ${DEFINES}"
+	@echo "LPath   \t= ${LIB_PATH}"
+	@echo "APP NAME\t= ${APP_NAME}"
+	@echo "TST NAME\t= ${TEST_APP}"
+	@echo "TST OBJS\t= ${TEST_OBJS}"
 
 setup:
 	@mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR} && conan install -g make ..
