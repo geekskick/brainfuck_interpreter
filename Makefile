@@ -1,4 +1,4 @@
-CXX_FLAGS=-g -O0 -Werror -Wall -Wpedantic -Wextra 
+CXX_FLAGS=-O3 -Werror -Wall -Wpedantic -Wextra 
 BUILD_DIR=${APP_NAME}_build
 SRC_DIR=src
 APP_NAME=interpreter
