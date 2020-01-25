@@ -17,7 +17,7 @@ public:
 
     void previous_data() { current--; }
 
-    bool current_is_zero() const { return memory.at(current) == 0; }
+    bool current_is_zero() const noexcept { return memory.at(current) == 0; }
 
     DType output_current() const { return memory.at(current); }
 
@@ -27,7 +27,7 @@ public:
     std::vector<DType> memory{DType{}};
     size_t current{};
 
-    bool current_is_end() const {
+    bool current_is_end() const noexcept {
         return current == memory.size()-1;
     }
 };
