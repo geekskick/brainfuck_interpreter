@@ -1,22 +1,26 @@
-CXX_FLAGS=-O3 -Werror -Wall -Wpedantic -Wextra -g
+CXX_FLAGS=-Werror -Wall -Wpedantic -Wextra
+STD=--std=c++17
+
+# Main app
 BUILD_DIR=${APP_NAME}_build
 SRC_DIR=src
 APP_NAME=interpreter
-STD=--std=c++17
 SRC=$(wildcard ${SRC_DIR}/*.cpp)
 OBJECTS=$(SRC:${SRC_DIR}/%.cpp=${BUILD_DIR}/%.o)
 
--include ${BUILD_DIR}/conanbuildinfo.mak
-
-INCLUDE_PATHS=$(addprefix -I, ${SRC_DIR} ${CONAN_INCLUDE_DIRS})
-LIBS=$(addprefix -l, ${CONAN_LIBS})
-LIB_PATH=$(addprefix -L, ${CONAN_LIB_DIRS})
-DEFINES=$(addprefix -D, ${CONAN_DEFINES})
+# Test app
 TEST_DIR=test
 TEST_SRC=$(wildcard ${TEST_DIR}/*.cpp)
 TEST_OBJS=$(TEST_SRC:${TEST_DIR}/%.cpp=${TEST_BUILD_DIR}/%.o)
 TEST_APP=test_app
 TEST_BUILD_DIR=${TEST_APP}_build
+
+# Conan stuff
+-include ${BUILD_DIR}/conanbuildinfo.mak
+INCLUDE_PATHS=$(addprefix -I, ${SRC_DIR} ${CONAN_INCLUDE_DIRS})
+LIBS=$(addprefix -l, ${CONAN_LIBS})
+LIB_PATH=$(addprefix -L, ${CONAN_LIB_DIRS})
+DEFINES=$(addprefix -D, ${CONAN_DEFINES})
 
 .PHONY: clean
 .PHONY: setup
@@ -24,20 +28,10 @@ TEST_BUILD_DIR=${TEST_APP}_build
 .PHONY: check
 .PHONY: test
 
-all: ${APP_NAME} ${TEST_APP}
+${TEST_APP} : OPTIMIZE=-O3 -g
+${APP_NAME}: OPTIMIZE=-O3
 
-info: setup
-	@echo "APP SRC \t= ${SRC}"
-	@echo "TEST SRC\t= ${TEST_SRC}"
-	@echo "OBJECTS \t= ${OBJECTS}"
-	@echo "IPath   \t= ${INCLUDE_PATHS}"
-	@echo "FLAGS   \t= ${CXX_FLAGS}"
-	@echo "LIBS    \t= ${LIBS}"
-	@echo "DEFINES \t= ${DEFINES}"
-	@echo "LPath   \t= ${LIB_PATH}"
-	@echo "APP NAME\t= ${APP_NAME}"
-	@echo "TST NAME\t= ${TEST_APP}"
-	@echo "TST OBJS\t= ${TEST_OBJS}"
+all: ${APP_NAME} ${TEST_APP}
 
 setup:
 	@mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR} && conan install -g make ..
@@ -60,13 +54,13 @@ ${APP_NAME}: ${OBJECTS}
 	clang++ -o $@ $^ ${LIBS} ${LIB_PATH} 
 
 ${BUILD_DIR}/%.o: ${SRC_DIR}/%.cpp
-	clang++ -c -o $@ $< ${CXX_FLAGS} ${INCLUDE_PATHS} ${CONAN_CXXFLAGS} ${DEFINES} ${STD}
+	clang++ -c -o $@ $< ${CXX_FLAGS} ${INCLUDE_PATHS} ${CONAN_CXXFLAGS} ${DEFINES} ${STD} ${OPTIMIZE}
 
 ${TEST_BUILD_DIR}/%.o: ${TEST_DIR}/%.cpp
-	clang++ -c -o $@ $< ${CXX_FLAGS} ${INCLUDE_PATHS} ${CONAN_CXXFLAGS} ${DEFINES} ${STD}
+	clang++ -c -o $@ $< ${CXX_FLAGS} ${INCLUDE_PATHS} ${CONAN_CXXFLAGS} ${DEFINES} ${STD} ${OPTIMIZE}
 
 clean:
-	-rm ${BUILD_DIR}/*.o
-	-rm ${TEST_BUILD_DIR}/*.o
+	-rm ${OBJECTS}
+	-rm ${TEST_OBJS}
 	-rm ${APP_NAME}
 	-rm ${TEST_APP}
