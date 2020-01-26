@@ -1,8 +1,8 @@
-#ifndef STATES_HPP 
+#ifndef STATES_HPP
 #define STATES_HPP
-#include <iostream>
 #include "fmt/format.h"
 #include "machine.hpp"
+#include <iostream>
 
 struct state {
     virtual void perform(machine<int> &m) const = 0;
@@ -13,7 +13,7 @@ struct state {
 
 class incr_state : public state {
 public:
-    void perform(machine<int> &m) const final override{ m.increment_data(); }
+    void perform(machine<int> &m) const final override { m.increment_data(); }
     std::string::const_iterator next_iterator(const std::string::const_iterator &it, const std::string &,
                                               const machine<int> &) const final override {
         return std::next(it);
@@ -79,9 +79,10 @@ public:
     std::string::const_iterator next_iterator(const std::string::const_iterator &it, const std::string &s,
                                               const machine<int> &) const final override {
 
-        if(const auto n = std::find(std::cbegin(s), it, '['); n != it){
+        if (const auto n = std::find(std::cbegin(s), it, '['); n != it) {
             return n;
         }
+        fmt::print("No start of loop in current line, that's bad! Exitting\n");
         return std::cend(s);
     }
 };

@@ -41,7 +41,7 @@ setup:
 	@echo "Setup has been run, so you may have to run you command again if it fails"
 
 format:
-	clang-format -i ${SRC} ${TEST_SRC}
+	clang-format -i ${SRC} ${TEST_SRC} $(wildcard ${SRC_DIR}/*.hpp)
 
 check:
 	cppcheck --enable=all ${STD} ${INCLUDE_PATHS} ${SRC}
