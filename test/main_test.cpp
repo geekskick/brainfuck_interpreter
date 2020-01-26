@@ -62,10 +62,11 @@ TEST_CASE("Machine") {
 TEST_CASE("States") {
     using namespace std::literals;
     auto m = machine<int>{};
-    const auto input = "hello"s;
+    const auto input = "++[-]"s;
+
+    auto uut = std::unique_ptr<state>{};
 
     SECTION("Easy next iterators") {
-        auto uut = std::unique_ptr<state>{};
         SECTION("Increment State") {
             uut = std::make_unique<incr_state>();
             uut->perform(m);
@@ -93,18 +94,59 @@ TEST_CASE("States") {
                 REQUIRE(m.current_memory_location() == 0);
             }
         }
-        SECTION("IO"){
-            // the io states are tightly coupled to the stdin and stdout at the moment, so only test their next iterators
-           SECTION("I"){
-                uut = std::make_unique<input_state>();
-           } 
-           SECTION("O"){
-                uut = std::make_unique<output_state>();
-           }
+        SECTION("IO") {
+            // the io states are tightly coupled to the stdin and stdout at the moment, so only test their next
+            // iterators
+            SECTION("I") { uut = std::make_unique<input_state>(); }
+            SECTION("O") { uut = std::make_unique<output_state>(); }
         }
+        // Getting the next instruction should always happen with no change to the machine
         const auto prev_m = m;
         const auto next = uut->next_iterator(input.cbegin(), input, m);
         REQUIRE(std::distance(input.cbegin(), next) == 1);
+        REQUIRE(m == prev_m);
+    }
+
+    SECTION("Loopy iterators") {
+        SECTION("Start of loop") {
+            uut = std::make_unique<start_loop_state>();
+            SECTION("Skip loop") {
+                const auto empty_loop = "[---]"s;
+                const auto next = uut->next_iterator(empty_loop.cbegin(), empty_loop, m);
+                REQUIRE(empty_loop.cend() == next);
+
+                const auto other_loop = "[-]-"s;
+                const auto other_next = uut->next_iterator(other_loop.cbegin(), other_loop, m);
+                REQUIRE(3 == std::distance(other_loop.cbegin(), other_next));
+            }
+            SECTION("Do loop") {
+                const auto one_loop = "[-]"s;
+                m.increment_data();
+                const auto next = uut->next_iterator(one_loop.cbegin(), one_loop, m);
+                REQUIRE(*next == '-');
+            }
+            SECTION("Error") {
+                const auto no_loop = "[------------------------------"s;
+                const auto next = uut->next_iterator(no_loop.cbegin(), no_loop, m);
+                REQUIRE(next == no_loop.cend());
+            }
+        }
+        SECTION("End of loop") {
+            uut = std::make_unique<end_loop_state>();
+            SECTION("Loops back") {
+                const auto command = "[]"s;
+                const auto next = uut->next_iterator(command.cbegin() + 1, command, m);
+                REQUIRE(command.cbegin() == next);
+            }
+            SECTION("No start in command") {
+                const auto command = "-]-----"s;
+                const auto next = uut->next_iterator(command.cbegin() + 1, command, m);
+                REQUIRE(next == command.cend());
+            }
+        }
+        // Shouldn't do anything to the machine itself
+        const auto prev_m = m;
+        uut->perform(m);
         REQUIRE(m == prev_m);
     }
 }
