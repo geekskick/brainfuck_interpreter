@@ -141,7 +141,7 @@ TEST_CASE("States") {
             SECTION("No start in command") {
                 const auto command = "-]-----"s;
                 const auto next = uut->next_iterator(command.cbegin() + 1, command, m);
-                REQUIRE(next == command.cend());
+                REQUIRE(command.cend() == next);
             }
         }
         // Shouldn't do anything to the machine itself

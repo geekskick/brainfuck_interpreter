@@ -79,7 +79,10 @@ public:
     std::string::const_iterator next_iterator(const std::string::const_iterator &it, const std::string &s,
                                               const machine<int> &) const final override {
 
-        return std::find(std::cbegin(s), it, '[');
+        if(const auto n = std::find(std::cbegin(s), it, '['); n != it){
+            return n;
+        }
+        return std::cend(s);
     }
 };
 

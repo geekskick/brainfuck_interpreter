@@ -1,3 +1,4 @@
+# Common to test and the actual app
 CXX_FLAGS=-Werror -Wall -Wpedantic -Wextra
 STD=--std=c++17
 
@@ -28,7 +29,8 @@ DEFINES=$(addprefix -D, ${CONAN_DEFINES})
 .PHONY: check
 .PHONY: test
 
-${TEST_APP} : OPTIMIZE=-O3 -g
+# Different optimization levels for testing, as I spent time debugging
+${TEST_APP}: OPTIMIZE=-O0 -g
 ${APP_NAME}: OPTIMIZE=-O3
 
 all: ${APP_NAME} ${TEST_APP}
