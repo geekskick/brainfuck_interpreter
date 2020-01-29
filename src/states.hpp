@@ -2,6 +2,7 @@
 #define STATES_HPP
 #include "fmt/format.h"
 #include "machine.hpp"
+#include <algorithm>
 #include <iostream>
 
 struct state {
@@ -78,12 +79,27 @@ public:
     void perform(machine<int> &) const final override {}
     std::string::const_iterator next_iterator(const std::string::const_iterator &it, const std::string &s,
                                               const machine<int> &) const final override {
+        const auto sol_pos = find_matching_brace(s, std::distance(s.cbegin(), it));
+        const auto sol_it = [&sol_pos, &s]() {
+            if (std::string::npos == sol_pos) {
+                fmt::print("No Start of loop in current line, that's bad!\n");
+                return s.cend();
+            }
+            return s.cbegin() + sol_pos;
+        }();
+        return sol_it;
+    }
 
-        if (const auto n = std::find(std::cbegin(s), it, '['); n != it) {
-            return n;
-        }
-        fmt::print("No start of loop in current line, that's bad! Exitting\n");
-        return std::cend(s);
+private:
+    template <typename SType> size_t find_matching_brace(const SType &s, const size_t brace_pos) const {
+        auto n_between = 0;
+        auto sol = brace_pos;
+        do {
+            sol = s.rfind("[", sol - 1);
+            n_between = std::count_if(s.cbegin() + sol + 1, s.cbegin() + brace_pos,
+                                      [](const char c) { return c == ']' || c == '['; });
+        } while (n_between % 2 != 0);
+        return sol;
     }
 };
 

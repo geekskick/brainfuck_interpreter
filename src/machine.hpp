@@ -1,6 +1,6 @@
 #ifndef MACHINE_H
 #define MACHINE_H
-
+#include <sstream>
 #include <vector>
 template <typename DType> class machine {
 public:
@@ -15,7 +15,13 @@ public:
         current++;
     }
 
-    void previous_data() { current--; }
+    void previous_data() {
+        if (current == 0) {
+            memory.insert(memory.cbegin(), DType{});
+        } else {
+            current--;
+        }
+    }
 
     bool current_is_zero() const noexcept { return memory.at(current) == 0; }
 
@@ -28,6 +34,19 @@ public:
     bool operator!=(const machine<DType> &rhs) const { return !(*this == rhs); }
 
     bool operator==(const machine<DType> &rhs) const { return current == rhs.current && memory == rhs.memory; }
+
+    std::string get_memory() const {
+        std::stringstream ss;
+        for (size_t i = 0; i < memory.size(); ++i) {
+            if (i == current) {
+                ss << "->\t";
+            } else {
+                ss << "\t";
+            }
+            ss << "[" << memory.at(i) << "]\n";
+        }
+        return ss.str();
+    }
 
 private:
     std::vector<DType> memory{DType{}};

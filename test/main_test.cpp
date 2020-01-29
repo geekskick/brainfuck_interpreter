@@ -44,10 +44,25 @@ TEST_CASE("Machine") {
         m.increment_data();
         const auto uut_cell_1 = m.output_current();
         REQUIRE(uut_cell_1 == 1);
+        REQUIRE(m.current_memory_location() == 1);
 
         m.previous_data();
         const auto uut_cell_0 = m.output_current();
         REQUIRE(uut_cell_0 == 0);
+        REQUIRE(m.current_memory_location() == 0);
+
+        m.increment_data();
+
+        SECTION("Inserts at start") {
+            m.previous_data();
+            const auto uut_updated = m.output_current();
+            REQUIRE(0 == uut_updated);
+            REQUIRE(m.current_memory_location() == 0);
+
+            m.next_data();
+            REQUIRE(m.current_memory_location() == 1);
+            REQUIRE(1 == m.output_current());
+        }
     }
 
     SECTION("Zero") { REQUIRE(m.current_is_zero()); }
@@ -118,6 +133,10 @@ TEST_CASE("States") {
                 const auto other_loop = "[-]-"s;
                 const auto other_next = uut->next_iterator(other_loop.cbegin(), other_loop, m);
                 REQUIRE(3 == std::distance(other_loop.cbegin(), other_next));
+
+                const auto command = "[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]-"s;
+                const auto next_next = uut->next_iterator(command.cbegin(), command, m);
+                REQUIRE(next_next == command.cend() -1);
             }
             SECTION("Do loop") {
                 const auto one_loop = "[-]"s;
@@ -142,6 +161,21 @@ TEST_CASE("States") {
                 const auto command = "-]-----"s;
                 const auto next = uut->next_iterator(command.cbegin() + 1, command, m);
                 REQUIRE(command.cend() == next);
+            }
+            SECTION("More complicated loop") {
+                const auto command = "-[[]]"s;
+                const auto next = uut->next_iterator(command.cend() - 2, command, m);
+                REQUIRE(next == command.cend() - 3);
+            }
+            SECTION("Nested") {
+                const auto command = "--[--[--]--]"s;
+                const auto next = uut->next_iterator(command.cend() - 1, command, m);
+                REQUIRE(next == command.cbegin() + 2);
+            }
+            SECTION("Hello world part"){
+                const auto command = "+[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]"s;
+                const auto next = uut->next_iterator(command.cend()-1, command, m);
+                REQUIRE(command.cbegin() + 1 == next);
             }
         }
         // Shouldn't do anything to the machine itself

@@ -41,6 +41,8 @@ static const auto state_map = []() {
     rc[symbols::decrement] = std::make_unique<decr_state>();
     rc[symbols::output] = std::make_unique<output_state>();
     rc[symbols::input] = std::make_unique<input_state>();
+    rc[symbols::prev] = std::make_unique<prev_state>();
+    rc[symbols::next] = std::make_unique<next_state>();
     rc[symbols::start_loop] = std::make_unique<start_loop_state>();
     rc[symbols::end_loop] = std::make_unique<end_loop_state>();
     return rc;
@@ -59,10 +61,25 @@ int main(const int argc, const char *argv[]) {
         using namespace std::literals;
         auto input = ""s;
         std::getline(std::cin, input);
-        for (auto c = std::cbegin(input); c != std::cend(input); c = state_map.at(*c)->next_iterator(c, input, m)) {
-            state_map.at(*c)->perform(m);
+        for (auto c = std::cbegin(input); c != std::cend(input);) {
+            if (const auto n = state_map.find(*c); n != state_map.cend()) {
+                state_map.at(*c)->perform(m);
+                fmt::print("{}\n", input);
+                auto indicator = std::string(input.size(), ' ');
+                indicator[std::distance(input.cbegin(), c)] = '^';
+                fmt::print("{}\n",indicator);
+                fmt::print("Mem: {}\n",m.get_memory());
+                c = state_map.at(*c)->next_iterator(c, input, m);
+                auto waste = ""s;
+                std::getline(std::cin, waste);
+            } else if (*c == commands::quit) {
+                fmt::print("Detected {}, so I'm stopping\n", *c);
+                fmt::print("Thanks for playing\n");
+                return EXIT_SUCCESS;
+            } else {
+                fmt::print("Ignoring invalid character {}\n", *c);
+                c++;
+            }
         }
     }
-
-    return EXIT_FAILURE;
 }

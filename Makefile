@@ -31,7 +31,7 @@ DEFINES=$(addprefix -D, ${CONAN_DEFINES})
 
 # Different optimization levels for testing, as I spent time debugging
 ${TEST_APP}: OPTIMIZE=-O0 -g
-${APP_NAME}: OPTIMIZE=-O3
+${APP_NAME}: OPTIMIZE=-O0 -g
 
 all: ${APP_NAME} ${TEST_APP}
 
