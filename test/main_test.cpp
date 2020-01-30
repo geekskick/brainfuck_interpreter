@@ -77,11 +77,11 @@ TEST_CASE("Machine") {
 TEST_CASE("States") {
     using namespace std::literals;
     auto m = machine<int>{};
-    const auto input = "++[-]"s;
-
     auto uut = std::unique_ptr<state>{};
 
     SECTION("Easy next iterators") {
+        const auto input = "++[-]"s;
+
         SECTION("Increment State") {
             uut = std::make_unique<incr_state>();
             uut->perform(m);
@@ -129,24 +129,21 @@ TEST_CASE("States") {
                 const auto empty_loop = "[---]"s;
                 const auto next = uut->next_iterator(empty_loop.cbegin(), empty_loop, m);
                 REQUIRE(empty_loop.cend() == next);
-
-                const auto other_loop = "[-]-"s;
-                const auto other_next = uut->next_iterator(other_loop.cbegin(), other_loop, m);
-                REQUIRE(3 == std::distance(other_loop.cbegin(), other_next));
-
+            }
+            SECTION("nested loops"){
                 const auto command = "[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]-"s;
                 const auto next_next = uut->next_iterator(command.cbegin(), command, m);
                 REQUIRE(next_next == command.cend() -1);
             }
-            SECTION("Do loop") {
-                const auto one_loop = "[-]"s;
+            SECTION("One loop") {
+                const auto one_loop = "[-]0"s;
                 m.increment_data();
                 const auto next = uut->next_iterator(one_loop.cbegin(), one_loop, m);
-                REQUIRE(*next == '-');
+                REQUIRE(next == one_loop.cbegin()+1);
             }
             SECTION("Error") {
                 const auto no_loop = "[------------------------------"s;
-                const auto next = uut->next_iterator(no_loop.cbegin(), no_loop, m);
+                const auto next =   uut->next_iterator(no_loop.cbegin(), no_loop, m);
                 REQUIRE(next == no_loop.cend());
             }
         }

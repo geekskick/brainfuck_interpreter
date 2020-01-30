@@ -62,15 +62,34 @@ public:
     void perform(machine<int> &) const final override {}
     std::string::const_iterator next_iterator(const std::string::const_iterator &it, const std::string &s,
                                               const machine<int> &m) const final override {
-
-        if (const auto end = std::find(it, std::cend(s), ']'); end != std::cend(s)) {
-            if (m.current_is_zero()) {
-                return std::next(end);
-            }
+        if(!m.current_is_zero()){
             return std::next(it);
         }
-        fmt::print("Not end of loop in the current line, that's bad! Exitting\n");
-        return s.cend();
+
+        const auto eol_pos = find_matching_brace(s, std::distance(s.cbegin(), it));
+        const auto eol_it = [&eol_pos, &s]() {
+            if (std::string::npos == eol_pos) {
+                fmt::print("No Matching end of loop in current line, that's bad!\n");
+                return s.cend() - 1;
+            }
+            return s.cbegin() + eol_pos;
+        }();
+
+        return std::next(eol_it);
+    }
+
+private:
+    template<typename SType>
+    size_t find_matching_brace(const SType &s, const size_t brace_pos) const {
+        auto n_between = 0;
+        auto eol = brace_pos;
+        do {
+            eol = s.find("]", eol + 1);
+            if(eol == std::string::npos){break;}
+            n_between = std::count_if(s.cbegin() + brace_pos + 1, s.cbegin() + eol,
+                                      [](const char c) { return c == ']' || c == '['; });
+        } while (n_between % 2 != 0);
+        return eol;
     }
 };
 
