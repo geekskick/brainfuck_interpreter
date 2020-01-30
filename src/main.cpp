@@ -11,6 +11,8 @@ namespace {
 [[noreturn]] void print_usage() {
     fmt::print("This is a brainfuck interpreter, currently you just type in brainfuck stuff then a newline to get it "
                "to evaluate\n");
+    fmt::print("--help,-h    show this message\n");
+    fmt::print("--slow,-s    run through in slow time\n");
     exit(EXIT_SUCCESS);
 }
 bool help_arg(const int argc, const char *argv[]) {
