@@ -1,0 +1,21 @@
+{
+    "C_Cpp.default.cppStandard": "c++17",
+    "C_Cpp.default.intelliSenseMode": "clang-x64",
+    "C_Cpp.clang_format_path": "clang-format",
+    "C_Cpp.clang_format_style": "file",
+    "cmake-tools-helper.cmake_download_path": "~/.vscode/extensions/maddouri.cmake-tools-helper-0.2.1/cmake_download",
+    "git.autofetch": true,
+    "cmake.configureOnOpen": true,
+    "workbench.activityBar.visible": true,
+    "editor.renderWhitespace": "all",
+    "editor.formatOnPaste": true,
+    "terminal.external.osxExec": "iTerm2.app",
+    "C_Cpp.clang_format_sortIncludes": true,
+    "git.showPushSuccessNotification": true,
+    "merge-conflict.autoNavigateNextConflict.enabled": true,
+    "catch2TestExplorer.userId": "62f421f8d9a153af79593310fe2f238915732b0d",
+    "catch2TestExplorer.logSentry": "disable_1",
+    "catch2TestExplorer.executables": "test_app",
+    "catch2TestExplorer.logpanel": true,
+    "testExplorer.addToEditorContextMenu": true
+}

@@ -33,6 +33,8 @@ DEFINES=$(addprefix -D, ${CONAN_DEFINES})
 ${TEST_APP}: OPTIMIZE=-O0 -g
 ${APP_NAME}: OPTIMIZE=-O0 -g
 
+remake: clean all
+
 all: ${APP_NAME} ${TEST_APP}
 
 setup:
