@@ -14,10 +14,19 @@ namespace {
     exit(EXIT_SUCCESS);
 }
 bool help_arg(const int argc, const char *argv[]) {
-
     using namespace std::literals;
     return (argc > 1 && (argv[1] == "--help"sv || argv[1] == "-h"sv));
 }
+bool slow_arg(const int argc, const char *argv[]){
+    using namespace std::literals;
+    for(int i = 0; i < argc; i++){
+        if(std::string{argv[i]} == "--slow" || std::string{argv[i]} == "-s"){
+            return true;
+        }
+    }
+    return false;
+}
+
 } // namespace
 
 struct symbols {
@@ -52,6 +61,7 @@ int main(const int argc, const char *argv[]) {
     if (help_arg(argc, argv)) {
         print_usage();
     }
+    const auto slow_time = slow_arg(argc, argv);
 
     fmt::print("Continuing as normal, [Ctrl-C or {}] to quit.\n", commands::quit);
 
@@ -64,14 +74,18 @@ int main(const int argc, const char *argv[]) {
         for (auto c = std::cbegin(input); c != std::cend(input);) {
             if (const auto n = state_map.find(*c); n != state_map.cend()) {
                 state_map.at(*c)->perform(m);
-                fmt::print("{}\n", input);
-                auto indicator = std::string(input.size(), ' ');
-                indicator[std::distance(input.cbegin(), c)] = '^';
-                fmt::print("{}\n",indicator);
-                fmt::print("Mem: {}\n",m.get_memory());
+                if(slow_time){
+                    fmt::print("{}\n", input);
+                    auto indicator = std::string(input.size(), ' ');
+                    indicator[std::distance(input.cbegin(), c)] = '^';
+                    fmt::print("{}\n",indicator);
+                    fmt::print("Mem: {}\n",m.get_memory());
+                }
                 c = state_map.at(*c)->next_iterator(c, input, m);
-                auto waste = ""s;
-                std::getline(std::cin, waste);
+                if(slow_time){
+                    auto waste = ""s;
+                    std::getline(std::cin, waste);
+                }
             } else if (*c == commands::quit) {
                 fmt::print("Detected {}, so I'm stopping\n", *c);
                 fmt::print("Thanks for playing\n");

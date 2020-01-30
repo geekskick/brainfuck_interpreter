@@ -50,7 +50,7 @@ public:
 
 class output_state : public state {
 public:
-    void perform(machine<int> &m) const final override { fmt::print("{}\n", m.output_current()); }
+    void perform(machine<int> &m) const final override { fmt::print("{}", static_cast<char>(m.output_current())); }
     std::string::const_iterator next_iterator(const std::string::const_iterator &it, const std::string &,
                                               const machine<int> &) const final override {
         return std::next(it);
