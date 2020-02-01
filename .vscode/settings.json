@@ -1,7 +1,7 @@
 {
     "C_Cpp.default.cppStandard": "c++17",
     "C_Cpp.default.intelliSenseMode": "clang-x64",
-    "C_Cpp.clang_format_path": "clang-format",
+    "C_Cpp.clang_format_path": "/usr/local/bin/clang-format",
     "C_Cpp.clang_format_style": "file",
     "cmake-tools-helper.cmake_download_path": "~/.vscode/extensions/maddouri.cmake-tools-helper-0.2.1/cmake_download",
     "git.autofetch": true,

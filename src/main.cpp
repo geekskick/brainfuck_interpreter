@@ -19,16 +19,35 @@ bool help_arg(const int argc, const char *argv[]) {
     using namespace std::literals;
     return (argc > 1 && (argv[1] == "--help"sv || argv[1] == "-h"sv));
 }
-bool slow_arg(const int argc, const char *argv[]){
+bool slow_arg(const int argc, const char *argv[]) {
     using namespace std::literals;
-    for(int i = 0; i < argc; i++){
-        if(std::string{argv[i]} == "--slow" || std::string{argv[i]} == "-s"){
+    for (int i = 0; i < argc; i++) {
+        if (std::string{argv[i]} == "--slow" || std::string{argv[i]} == "-s") {
             return true;
         }
     }
     return false;
 }
+void wait_for_user_input() {
+    using namespace std::literals;
+    auto waste = ""s;
+    std::getline(std::cin, waste);
+}
 
+void show_command(const std::string &input, const machine<int> &m, const std::string::const_iterator &c) {
+    fmt::print("{}\n", input);
+    auto indicator = std::string(input.size(), ' ');
+    indicator[std::distance(input.cbegin(), c)] = '^';
+    fmt::print("{}\n", indicator);
+    fmt::print("Mem: {}\n", m.get_memory());
+}
+
+std::string get_user_input() {
+    using namespace std::literals;
+    auto input = ""s;
+    std::getline(std::cin, input);
+    return input;
+}
 } // namespace
 
 struct symbols {
@@ -70,24 +89,22 @@ int main(const int argc, const char *argv[]) {
     auto m = machine<int>{};
 
     while (1) {
-        using namespace std::literals;
-        auto input = ""s;
-        std::getline(std::cin, input);
+        const auto input = get_user_input();
         for (auto c = std::cbegin(input); c != std::cend(input);) {
             if (const auto n = state_map.find(*c); n != state_map.cend()) {
-                state_map.at(*c)->perform(m);
-                if(slow_time){
-                    fmt::print("{}\n", input);
-                    auto indicator = std::string(input.size(), ' ');
-                    indicator[std::distance(input.cbegin(), c)] = '^';
-                    fmt::print("{}\n",indicator);
-                    fmt::print("Mem: {}\n",m.get_memory());
+
+                n->second->perform(m);
+
+                if (slow_time) {
+                    show_command(input, m, c);
                 }
-                c = state_map.at(*c)->next_iterator(c, input, m);
-                if(slow_time){
-                    auto waste = ""s;
-                    std::getline(std::cin, waste);
+
+                c = n->second->next_iterator(c, input, m);
+
+                if (slow_time) {
+                    wait_for_user_input();
                 }
+
             } else if (*c == commands::quit) {
                 fmt::print("Detected {}, so I'm stopping\n", *c);
                 fmt::print("Thanks for playing\n");
